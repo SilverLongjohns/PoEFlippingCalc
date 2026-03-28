@@ -52,6 +52,61 @@ const TableContainer = styled.div`
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
 `;
 
+const SettingsToggle = styled.button`
+  background: none;
+  border: 1px solid #3d3428;
+  color: #a89272;
+  font-size: 11px;
+  font-family: 'Cinzel', Georgia, serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 4px 12px;
+  cursor: pointer;
+
+  &:hover {
+    color: #c8a04e;
+    border-color: #5a4a32;
+  }
+`;
+
+const SettingsPanel = styled.div`
+  padding: 12px 16px;
+  background: #13110f;
+  border: 1px solid #3d3428;
+  font-size: 12px;
+`;
+
+const SessionInput = styled.input`
+  padding: 5px 8px;
+  font-size: 13px;
+  font-family: 'Fontin', Georgia, serif;
+  border: 1px solid #5a4a32;
+  background: #0c0b0a;
+  color: #d9cdb8;
+  width: 320px;
+
+  &:focus {
+    outline: none;
+    border-color: #af6025;
+  }
+`;
+
+const SettingsLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #a89272;
+  font-family: 'Cinzel', Georgia, serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+`;
+
+const SettingsHint = styled.div`
+  color: #6b5d4d;
+  font-size: 11px;
+  margin-top: 6px;
+`;
+
 export default function Home() {
   const [leagues, setLeagues] = useState<League[]>([]);
   const [selectedLeague, setSelectedLeague] = useState('');
@@ -62,6 +117,8 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cachedAt, setCachedAt] = useState<string | null>(null);
+  const [poesessid, setPoesessid] = useState('');
+  const [showSettings, setShowSettings] = useState(false);
 
   // Client-side sorting and filtering — instant, no API call needed
   const flips = useMemo(() => {
@@ -70,6 +127,21 @@ export default function Home() {
       .filter((f) => Math.min(f.buyListingCount, f.sellListingCount) >= minListings)
       .sort((a, b) => b[sortBy] - a[sortBy]);
   }, [rawFlips, sortBy, minProfit, minListings]);
+
+  // Load POESESSID from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('poesessid');
+    if (saved) setPoesessid(saved);
+  }, []);
+
+  const handleSessionChange = (value: string) => {
+    setPoesessid(value);
+    if (value) {
+      localStorage.setItem('poesessid', value);
+    } else {
+      localStorage.removeItem('poesessid');
+    }
+  };
 
   // Fetch leagues on mount
   useEffect(() => {
@@ -136,6 +208,26 @@ export default function Home() {
       </Header>
       <Content>
         <StatusIndicator cachedAt={cachedAt} loading={loading} error={error} />
+        <SettingsToggle onClick={() => setShowSettings(!showSettings)}>
+          {showSettings ? 'Hide Settings' : 'Settings'}
+        </SettingsToggle>
+        {showSettings && (
+          <SettingsPanel>
+            <SettingsLabel>
+              POESESSID:
+              <SessionInput
+                type="password"
+                value={poesessid}
+                onChange={(e) => handleSessionChange(e.target.value)}
+                placeholder="Paste your session ID here"
+              />
+            </SettingsLabel>
+            <SettingsHint>
+              Required for live trade verification. Find it in your browser cookies on pathofexile.com.
+              Stored locally in your browser — never sent to any server except GGG.
+            </SettingsHint>
+          </SettingsPanel>
+        )}
         <ControlsBar
           sortBy={sortBy}
           onSortChange={setSortBy}
@@ -152,6 +244,7 @@ export default function Home() {
             sortBy={sortBy}
             onSortChange={setSortBy}
             league={selectedLeague}
+            poesessid={poesessid}
           />
         </TableContainer>
       </Content>

@@ -7,7 +7,7 @@ const client = new TradeClient();
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { league, wantCurrency, haveCurrency } = body;
+    const { league, wantCurrency, haveCurrency, poesessid } = body;
 
     if (!league || !wantCurrency || !haveCurrency) {
       return NextResponse.json(
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await client.validateFlip(league, wantCurrency, haveCurrency);
+    const result = await client.validateFlip(league, wantCurrency, haveCurrency, poesessid);
 
     return NextResponse.json({
       data: result,

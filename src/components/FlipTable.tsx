@@ -267,6 +267,7 @@ interface FlipTableProps {
   sortBy: SortField;
   onSortChange: (sort: SortField) => void;
   league: string;
+  poesessid: string;
 }
 
 function getPrimarySteps(flip: FlipOpportunity): { buyStep: TradeStep; sellStep: TradeStep } {
@@ -307,7 +308,7 @@ function describeStep(step: TradeStep) {
 
 // --- Component ---
 
-export function FlipTable({ flips, sortBy, onSortChange, league }: FlipTableProps) {
+export function FlipTable({ flips, sortBy, onSortChange, league, poesessid }: FlipTableProps) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [validating, setValidating] = useState<number | null>(null);
   const [validationResults, setValidationResults] = useState<Map<number, ValidationResult>>(new Map());
@@ -322,6 +323,7 @@ export function FlipTable({ flips, sortBy, onSortChange, league }: FlipTableProp
           league,
           wantCurrency: flip.buyCurrency.tradeId,
           haveCurrency: flip.sellCurrency.tradeId,
+          poesessid: poesessid || undefined,
         }),
       });
       const { data } = await response.json();

@@ -31,7 +31,8 @@ export class TradeClient {
   async validateFlip(
     league: string,
     wantCurrency: string,
-    haveCurrency: string
+    haveCurrency: string,
+    poesessid?: string
   ): Promise<ValidationResult> {
     // Check cache first
     const cacheKey = `validate-${league}-${wantCurrency}-${haveCurrency}`;
@@ -63,8 +64,8 @@ export class TradeClient {
       headers: {
         'Content-Type': 'application/json',
         'User-Agent': USER_AGENT,
-        ...(process.env.POESESSID
-          ? { Cookie: `POESESSID=${process.env.POESESSID}` }
+        ...((poesessid || process.env.POESESSID)
+          ? { Cookie: `POESESSID=${poesessid || process.env.POESESSID}` }
           : {}),
       },
       body: JSON.stringify(searchBody),
