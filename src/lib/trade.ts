@@ -59,22 +59,26 @@ export class TradeClient {
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
 
+    const sessionId = poesessid || process.env.POESESSID;
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'User-Agent': USER_AGENT,
+    };
+    if (sessionId) {
+      headers['Cookie'] = `POESESSID=${sessionId}`;
+    }
+
     const response = await fetch(searchUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': USER_AGENT,
-        ...((poesessid || process.env.POESESSID)
-          ? { Cookie: `POESESSID=${poesessid || process.env.POESESSID}` }
-          : {}),
-      },
+      headers,
       body: JSON.stringify(searchBody),
     });
 
     this.recordRequest();
 
     if (!response.ok) {
-      throw new Error(`Trade API error: ${response.status}`);
+      const body = await response.text().catch(() => '');
+      throw new Error(`Trade API error: ${response.status}${body ? ` - ${body.slice(0, 200)}` : ''}${sessionId ? ' (session provided)' : ' (no session)'}`);
     }
 
     this.rateLimiter.updateFromHeaders(response.headers);
