@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "WebSearch",
+      "Bash(curl -s \"https://poe.ninja/api/data/currencyoverview?league=Phrecia&type=Currency\")",
+      "Bash(curl -s \"https://api.pathofexile.com/leagues?type=main&realm=pc&compact=1\" -H \"User-Agent: PoECurrencyFlipper/1.0\")"
+    ]
+  }
+}
